@@ -27,14 +27,13 @@ parameters:
     type: string
     default: workspace
 
-
 # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
 # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
 default-node: &default-node
-    docker:
-       # Specify the version you desire here
-       - image: cimg/node:20.15.0
-    resource_class: medium
+  docker:
+    # Specify the version you desire here
+    - image: cimg/node:20.15.0
+  resource_class: medium
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
@@ -42,19 +41,18 @@ jobs:
   build-and-test:
     <<: *default-node
     steps:
-      # Checkout the code as the first step. 
+      # Checkout the code as the first step.
       - checkout
       - run:
           name: Generate .npmrc
           command: |
             cat > ~/.npmrc \<< EOF
             @vector-web-components:registry=https://livesafe.jfrog.io/artifactory/api/npm/vector-npm/
-            //livesafe.jfrog.io/artifactory/api/npm/vector-npm/:_password=${VECTOR_NPM_PASSWORD}
-            //livesafe.jfrog.io/artifactory/api/npm/vector-npm/:username=${VECTOR_NPM_USERNAME}
+            //livesafe.jfrog.io/artifactory/api/npm/vector-npm/:_authToken=${VECTOR_NPM_PASSWORD}            
             //livesafe.jfrog.io/artifactory/api/npm/vector-npm/:email=${VECTOR_NPM_EMAIL}
             //livesafe.jfrog.io/artifactory/api/npm/vector-npm/:always-auth=true
             EOF
-      # Installs dependencies using CirclCI orb.   
+      # Installs dependencies using CirclCI orb.
       - node/install-packages:
           pkg-manager: npm
       - run:
@@ -84,7 +82,7 @@ jobs:
           command: npm run build -- --since
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             # Clear destination if it is main branch and update version.
             - run:
@@ -105,21 +103,21 @@ jobs:
       # Skip version update if current branch is not main branch.
       - unless:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             - run: echo "Skip version update"
             - persist_to_workspace:
                 root: .
                 paths:
                   - .
-      # Update version if current branch is main branch.            
+      # Update version if current branch is main branch.
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             - add_ssh_keys:
                 fingerprints:
-                  - 'SHA256:jsNiP0mojRn/PkH9OW2r1gpfFEOU/HRcUj7Pc8PrVo8'
+                  - "SHA256:jsNiP0mojRn/PkH9OW2r1gpfFEOU/HRcUj7Pc8PrVo8"
             - run:
                 name: Configure git
                 command: |
@@ -207,7 +205,7 @@ jobs:
               done
             else
               echo "No changed packages, skipping publish."
-            fi  
+            fi
       - run:
           name: Upload importMap to dev S3
           command: |
@@ -216,7 +214,7 @@ jobs:
       - run:
           name: Upload configuration file to dev S3
           command: |
-              aws s3 cp ./projects/singlespa-app-config.develop.json s3://vectorsolutions-web-components-develop/${CIRCLE_PROJECT_REPONAME}-mfe/singlespa-app-config.json
+            aws s3 cp ./projects/singlespa-app-config.develop.json s3://vectorsolutions-web-components-develop/${CIRCLE_PROJECT_REPONAME}-mfe/singlespa-app-config.json
       - run:
           name: Invalidate Cloudfront-Dev
           command: |
@@ -278,7 +276,7 @@ jobs:
       - run:
           name: Upload configuration file to stage S3
           command: |
-              aws s3 cp ./projects/singlespa-app-config.staging.json s3://vectorsolutions-web-components-stage/${CIRCLE_PROJECT_REPONAME}-mfe/singlespa-app-config.json      
+            aws s3 cp ./projects/singlespa-app-config.staging.json s3://vectorsolutions-web-components-stage/${CIRCLE_PROJECT_REPONAME}-mfe/singlespa-app-config.json
       - run:
           name: Invalidate Cloudfront-Dev
           command: |
@@ -340,18 +338,18 @@ jobs:
       - run:
           name: Upload configuration file to prod S3
           command: |
-              aws s3 cp ./projects/singlespa-app-config.production.json s3://vectorsolutions-web-components-prod/${CIRCLE_PROJECT_REPONAME}-mfe/singlespa-app-config.json       
+            aws s3 cp ./projects/singlespa-app-config.production.json s3://vectorsolutions-web-components-prod/${CIRCLE_PROJECT_REPONAME}-mfe/singlespa-app-config.json
       - run:
           name: Invalidate Cloudfront-Dev
           command: |
-            aws cloudfront create-invalidation --distribution-id E3NZTUCTOEL6J3  --paths "/${CIRCLE_PROJECT_REPONAME}-mfe/*"                             
+            aws cloudfront create-invalidation --distribution-id E3NZTUCTOEL6J3  --paths "/${CIRCLE_PROJECT_REPONAME}-mfe/*"
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   feature-build:
     when:
       not:
-        equal: [ "main", << pipeline.git.branch >> ]
+        equal: ["main", << pipeline.git.branch >>]
     jobs:
       # - vsp-ci/scan-code:
       #     name: mfe-demo Code Scan
@@ -392,7 +390,7 @@ workflows:
             # - mfe-demo
   full-build:
     when:
-      equal: [ "main", << pipeline.git.branch >> ]
+      equal: ["main", << pipeline.git.branch >>]
     jobs:
       # - vsp-ci/scan-code:
       #     name: mfe-demo Code Scan
@@ -435,7 +433,7 @@ workflows:
             # - mfe-demo
       - publish-dev:
           requires:
-            - update-versions 
+            - update-versions
             - build-and-test
             # - mfe-demo
       # - approval:
