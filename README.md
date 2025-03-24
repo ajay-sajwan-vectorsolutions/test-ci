@@ -9,7 +9,7 @@ Micro frontends should primarily be defined by their domain and functionality ve
 
 ## Starting up locally
 
-To start up both the shell and the MFEs defined in the repo, you can run `npm run start` from the root of the repo. This will start the shell at `http://localhost:9000`. Different MFEs can be loaded via the routes defined in `/projects/shell/src/microfrontend-layout.html`. 
+To start up both the shell and the MFEs defined in the repo, you can run `npm run start` from the root of the repo. This will start the shell at `http://localhost:9000`. Different MFEs can be loaded via the routes defined in `/projects/shell/src/microfrontend-layout.html`.
 
 ## Generators
 
